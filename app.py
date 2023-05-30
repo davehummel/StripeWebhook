@@ -20,7 +20,7 @@ from flask import Flask, jsonify, request
 api_key = os.getenv("STRIPE_API_KEY")
 
 # This is your Stripe CLI webhook secret for testing your endpoint locally.
-endpoint_secret = 'whsec_2349c1f3a5af86cdc9fc5a8356a1a51848b512f6f5c7a243c86deb0588af53b1'
+endpoint_secret = os.getenv("STRIPE_WEBHOOK_SIGNATURE")
 
 app = Flask(__name__)
 

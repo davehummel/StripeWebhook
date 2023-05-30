@@ -28,7 +28,7 @@ endpoint_secret = 'whsec_2349c1f3a5af86cdc9fc5a8356a1a51848b512f6f5c7a243c86deb0
 
 app = Flask(__name__)
 
-@app.route('/healthz', methods=['GET'])
+@app.route('/healthz')
 def healthz():
     return "OK"
 

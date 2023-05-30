@@ -30,7 +30,7 @@ app = Flask(__name__)
 
 @app.route('/healthz', methods=['GET'])
 def healthz():
-    return jsonify(success=True)
+    return "OK"
 
 @app.route('/webhook', methods=['POST'])
 def webhook():

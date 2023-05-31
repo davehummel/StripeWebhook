@@ -21,7 +21,7 @@ from psycopg.errors import UniqueViolation
 
 import db_utils as du
 
-api_key = os.getenv("STRIPE_API_KEY")
+stripe.api_key = os.getenv("STRIPE_API_KEY")
 endpoint_secret = os.getenv("STRIPE_WEBHOOK_SIGNATURE")
 token_db_connection = os.getenv("TOKEN_DB_CONNECTION")
 log_level = os.getenv("LOGGING_LEVEL","INFO")
@@ -68,12 +68,13 @@ def webhook():
     # Handle the event
     if event and event['type'] == 'charge.succeeded':
         payment_intent = event['data']['object']
+        charge_id = payment_intent['id']
         amount = payment_intent['amount']
         name = payment_intent['billing_details']['name']
         email = payment_intent['billing_details']['email']
         phone = payment_intent['billing_details']['phone']
         contact_id = email if email else phone
-        logging.info (f"Charge succeeded webhook called for ${amount} - Name: {name}, Email: {email}, Phone: {phone}")
+        logging.info (f"Charge {charge_id} succeeded webhook called for {amount} - Name: {name}, Email: {email}, Phone: {phone}")
         try:
             du.create_account(contact_id, name, name)
             logging.info(f"Created account for - contact_id:{contact_id} Name: {name}, Email: {email}, Phone: {phone}")
@@ -86,9 +87,16 @@ def webhook():
             logging.error(f"UNCOMPENSATED PAYMENT : Unexpected amount {amount} received from {contact_id}")
             return
 
-        if not du.add_tokens(contact_id,token_count):
+        player_id =  du.add_tokens(contact_id,token_count)
+        if player_id is None:
             logging.error(f"UNCOMPENSATED PAYMENT : Failed to give {token_count} tokens to {contact_id}")
             return
+
+        stripe.Charge.modify(
+            charge_id,
+            receipt_email = email,
+            description = f'Thank you for supporting Promply!  Tap <a href="https://beta.promply.ai/?prs={player_id}">here to activate your tokens</a> on this device.'
+        )
 
 
 

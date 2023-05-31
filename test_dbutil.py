@@ -38,6 +38,8 @@ def test_token_purchase():
 
     du.create_account("Test1@gmail.com","Mr Test 1","testy1")
 
-    assert du.add_tokens("Test1@gmail.com",10), "Couldnt add tokens"
+    assert du.add_tokens("Test1@gmail.com",10) is not None, "Couldn't add tokens"
 
     assert du.delete_account('Test1@gmail.com'),"Couldn't delete account"
+
+

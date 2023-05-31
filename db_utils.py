@@ -38,6 +38,8 @@ def create_account(contact_id: str, full_name: str, nick_name: str, player_type:
                         )
 
 
+
+
 def delete_account(contact_id: str):
     with token_db_pool.connection() as conn:
         with conn.cursor() as cur:
@@ -89,4 +91,5 @@ def add_tokens(contact_id: str, token_count: int):
                 f"Created {token_count} tokens for {contact_id} "
             )
 
-            return True
+            return str(result[0])
+    return None

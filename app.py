@@ -95,7 +95,7 @@ def webhook():
         stripe.Charge.modify(
             charge_id,
             receipt_email = email,
-            description = f'Thank you for supporting Promply!  Tap <a href="https://beta.promply.ai/?prs={player_id}">here to activate your tokens</a> on this device.'
+            description = f'Thank you for supporting Promply!  Tap https://beta.promply.ai/?prs={player_id} to activate your tokens on this device.'
         )
 
 

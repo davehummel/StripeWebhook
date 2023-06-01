@@ -24,7 +24,7 @@ import db_utils as du
 stripe.api_key = os.getenv("STRIPE_API_KEY")
 endpoint_secret = os.getenv("STRIPE_WEBHOOK_SIGNATURE")
 token_db_connection = os.getenv("TOKEN_DB_CONNECTION")
-log_level = os.getenv("LOGGING_LEVEL","INFO")
+log_level = os.getenv("LOGGING_LEVEL", "INFO")
 
 numeric_level = getattr(logging, log_level.upper(), None)
 if not isinstance(numeric_level, int):
@@ -35,7 +35,7 @@ du.set_token_db_connection(token_db_connection)
 
 app = Flask(__name__)
 
-TOKEN_COUNTS = {100:5,500:30,1000:80}
+TOKEN_COUNTS = {100: 5, 500: 30, 1000: 80}
 
 
 @app.route('/healthz')
@@ -74,12 +74,17 @@ def webhook():
         email = payment_intent['billing_details']['email']
         phone = payment_intent['billing_details']['phone']
         contact_id = email if email else phone
-        logging.info (f"Charge {charge_id} succeeded webhook called for {amount} - Name: {name}, Email: {email}, Phone: {phone}")
+        logging.info(
+            f"Charge {charge_id} succeeded webhook called for {amount} - Name: {name}, Email: {email}, Phone: {phone}")
+
         try:
+            new_account = True
             du.create_account(contact_id, name, name)
             logging.info(f"Created account for - contact_id:{contact_id} Name: {name}, Email: {email}, Phone: {phone}")
         except UniqueViolation as e:
-            logging.info(f"Account already exists for - contact_id:{contact_id} Name: {name}, Email: {email}, Phone: {phone}")
+            new_account = False
+            logging.info(
+                f"Account already exists for - contact_id:{contact_id} Name: {name}, Email: {email}, Phone: {phone}")
 
         token_count = TOKEN_COUNTS.get(amount)
 
@@ -87,15 +92,19 @@ def webhook():
             logging.error(f"UNCOMPENSATED PAYMENT : Unexpected amount {amount} received from {contact_id}")
             return
 
-        player_id =  du.add_tokens(contact_id,token_count)
+        player_id = du.add_tokens(contact_id, token_count)
         if player_id is None:
             logging.error(f"UNCOMPENSATED PAYMENT : Failed to give {token_count} tokens to {contact_id}")
             return
+        if new_account:
+            description = f'Thank you for supporting Promply! Tap https://beta.promply.ai/?prs={player_id} to activate your {token_count} tokens on this device.'
+        else:
+            description = f'Thank you for supporting Promply again! {token_count} tokens have been added to your purse.  Tap https://beta.promply.ai/?prs={player_id} to activate it on this device.'
 
         stripe.Charge.modify(
             charge_id,
-            receipt_email = email,
-            description = f'Thank you for supporting Promply!  Tap https://beta.promply.ai/?prs={player_id} to activate your tokens on this device.'
+            receipt_email=email,
+            description=description
         )
 
 

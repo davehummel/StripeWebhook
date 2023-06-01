@@ -83,9 +83,9 @@ def add_tokens(contact_id: str, token_count: int):
             cur.execute("""
             INSERT INTO token_table(player_id, content, owner_id)
             SELECT %(player_id)s,'{}', %(player_id)s
-                FROM generate_series(1,token_count)
+                FROM generate_series(1,%(token_count)s)
             """
-                        , {"player_id": result[0]})
+                        , {"player_id": result[0], "token_count":token_count})
 
             logging.info(
                 f"Created {token_count} tokens for {contact_id} "

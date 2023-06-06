@@ -79,7 +79,7 @@ def webhook():
 
         try:
             new_account = True
-            du.create_account(contact_id, name, name)
+            du.create_account(contact_id, name, name.split(' ')[0])
             logging.info(f"Created account for - contact_id:{contact_id} Name: {name}, Email: {email}, Phone: {phone}")
         except UniqueViolation as e:
             new_account = False

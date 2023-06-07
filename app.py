@@ -97,9 +97,9 @@ def webhook():
             logging.error(f"UNCOMPENSATED PAYMENT : Failed to give {token_count} tokens to {contact_id}")
             return
         if new_account:
-            description = f'Thank you for supporting Promply! Tap https://beta.promply.ai/?prs={player_id} to activate your {token_count} tokens on this device.'
+            description = f'Thank you for supporting Promply! Visit https://beta.promply.ai/?prs={player_id} to activate your {token_count} tokens on this device.'
         else:
-            description = f'Thank you for supporting Promply again! {token_count} tokens have been added to your purse.  Tap https://beta.promply.ai/?prs={player_id} to activate it on this device.'
+            description = f'Thank you for supporting Promply again! {token_count} tokens have been added to your purse.  Visit https://beta.promply.ai/?prs={player_id} to activate it on this device.'
 
         stripe.Charge.modify(
             charge_id,
